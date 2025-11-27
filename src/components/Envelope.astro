@@ -48,7 +48,9 @@
     height: 0;
     border-style: solid;
     border-width: 0 0 100px 200px;
-    border-color: transparent transparent #e95f55 transparent;
+    /* border-color: transparent transparent #e95f55 transparent; */
+    border-color: transparent transparent #70161E transparent;
+
     z-index: 2;
   }
 
@@ -61,7 +63,9 @@
     border-width: 50px 100px 0 100px;
     transform-origin: 50% 0%;
     transition: transform 0.4s 0.4s, z-index 0.2s 0.4s;
-    border-color: #cf4a43 transparent transparent transparent;
+    /* border-color: #cf4a43 transparent transparent transparent; */
+    border-color: #4F0F15 transparent transparent transparent;
+
     z-index: 2;
   }
 
@@ -70,7 +74,9 @@
     bottom: 0;
     width: 200px;
     height: 100px;
-    background: #cf4a43;
+    /* background: #cf4a43; */
+    background: #495D63;
+
     z-index: 0;
   }
 
@@ -81,7 +87,9 @@
     height: 0;
     border-style: solid;
     border-width: 50px 0 50px 100px;
-    border-color: transparent transparent transparent #e15349;
+    /* border-color: transparent transparent transparent #e15349; */
+    border-color: transparent transparent transparent #8A1E29;
+    /* border-color: transparent transparent transparent #4F0F15; */
     z-index: 2;
   }
 
@@ -91,7 +99,9 @@
     position: absolute;
     width: 160px;
     height: 60px;
-    background: white;
+    /* background: white; */
+    background: white; /* or #D7BCC8 if want a tinted paper */
+
     z-index: 1;
     overflow: hidden;
     transition: 0.4s 0.2s;
@@ -102,8 +112,11 @@
     width: 100%;
     background: repeating-linear-gradient(
       -45deg,
-      #cb5a5e,
-      #cb5a5e 8px,
+      /* #cb5a5e, 
+      #cb5a5e 8px, */
+   
+      #629677,
+      #629677 8px, 
       transparent 8px,
       transparent 18px
     );
@@ -114,7 +127,9 @@
     margin-left: 5px;
     height: 10px;
     width: 40%;
-    background: #cb5a5e;
+    /* background: #cb5a5e; */
+    background: #629677;
+
   }
 
   .animated-mail .letter-context {
@@ -122,7 +137,9 @@
     margin-left: 5px;
     height: 10px;
     width: 20%;
-    background: #cb5a5e;
+    /* background: #cb5a5e; */
+    background: #629677;
+
   }
 
   .animated-mail .letter-stamp {
@@ -131,7 +148,8 @@
     border-radius: 100%;
     height: 30px;
     width: 30px;
-    background: #cb5a5e;
+    background: #629677;  
+    /* background: #cb5a5e; */
     opacity: 0.3;
   }
 
@@ -189,16 +207,4 @@
   .letter-image.is-open .shadow {
     width: 260px;
   }
-</style>
-
-<script>
-  // Tiny bit of client-side JS – this is what Astro means by "opt-in JS".
-  if (typeof window !== "undefined") {
-    const letterImage = document.querySelector(".letter-image");
-    if (letterImage) {
-      letterImage.addEventListener("click", () => {
-        letterImage.classList.toggle("is-open");
-      });
-    }
-  }
-</script>
+</style> 
