@@ -1,0 +1,52 @@
+---
+
+---
+
+<div class="snow-container">
+    {
+        Array.from({ length: 50 }).map((_, i) => (
+            <div
+                class="snowflake"
+                style={{
+                    left: `${Math.random() * 100}vw`,
+                    animationDuration: `${Math.random() * 10 + 10}s`,
+                    animationDelay: `${Math.random() * 5}s`,
+                    opacity: Math.random(),
+                }}
+            />
+        ))
+    }
+</div>
+
+<style>
+    .snow-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 50; /* On top of everything */
+        overflow: hidden;
+    }
+
+    .snowflake {
+        position: absolute;
+        top: -10px;
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-radius: 50%;
+        filter: blur(1px);
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-10vh);
+        }
+        100% {
+            transform: translateY(110vh);
+        }
+    }
+</style>
