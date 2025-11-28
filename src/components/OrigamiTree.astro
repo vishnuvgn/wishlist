@@ -48,6 +48,11 @@
     cursor: pointer;
   }
 
+  .letter-image.is-open,
+  .letter-image.is-tree {
+    cursor: default;
+  }
+
   .animated-mail {
     position: absolute;
     height: 150px;
@@ -504,21 +509,23 @@
   if (envelope) {
     envelope.addEventListener("click", (e) => {
       const el = e.currentTarget as Element;
-      // Stage 1: Open the envelope
-      if (!el.classList.contains("is-tree")) {
-        // Only toggle if not already a tree
-        el.classList.toggle("is-open");
+
+      // If already open or is a tree, do nothing (disable interaction)
+      if (
+        el.classList.contains("is-open") ||
+        el.classList.contains("is-tree")
+      ) {
+        return;
       }
 
-      // If opening, trigger tree morph after delay
-      if (el.classList.contains("is-open")) {
-        setTimeout(() => {
-          el.classList.add("is-tree");
-          el.classList.remove("is-open"); // Remove open state to stop pop-out animation
-        }, 2000); // 1.4s animation + buffer
-      } else {
-        el.classList.remove("is-tree");
-      }
+      // Start the sequence
+      el.classList.add("is-open");
+
+      // Trigger tree morph after delay
+      setTimeout(() => {
+        el.classList.add("is-tree");
+        el.classList.remove("is-open"); // Remove open state to stop pop-out animation
+      }, 2000); // 1.4s animation + buffer
     });
   }
 </script>
