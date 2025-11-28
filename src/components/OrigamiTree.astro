@@ -206,8 +206,8 @@ import wishes from "../data/wishes.json";
     position: absolute;
     width: 160px;
     height: 60px;
-    /* background: white; */
-    background: white; /* or #D7BCC8 if want a tinted paper */
+
+    background: white;
 
     z-index: 1;
     overflow: hidden;
@@ -222,8 +222,7 @@ import wishes from "../data/wishes.json";
     width: 100%;
     background: repeating-linear-gradient(
       -45deg,
-      /* #cb5a5e, 
-      #cb5a5e 8px, */ #629677,
+      #629677,
       #629677 8px,
       transparent 8px,
       transparent 18px
@@ -236,7 +235,7 @@ import wishes from "../data/wishes.json";
     margin-left: 5px;
     height: 10px;
     width: 40%;
-    /* background: #cb5a5e; */
+
     background: #629677;
     transition: opacity 0.5s;
   }
@@ -246,7 +245,7 @@ import wishes from "../data/wishes.json";
     margin-left: 5px;
     height: 10px;
     width: 20%;
-    /* background: #cb5a5e; */
+
     background: #629677;
     transition: opacity 0.5s;
   }
@@ -258,7 +257,7 @@ import wishes from "../data/wishes.json";
     height: 30px;
     width: 30px;
     background: #629677;
-    /* background: #cb5a5e; */
+
     opacity: 0.3;
     transition: opacity 0.5s;
   }
@@ -516,11 +515,11 @@ import wishes from "../data/wishes.json";
   /* hover = little peek, same behavior you had */
   /* Only apply hover on devices that support it to avoid sticky hover on mobile */
   @media (hover: hover) {
-    .letter-image:not(.is-tree):hover .animated-mail {
+    .letter-image:not(.is-tree):not(.is-rocket):hover .animated-mail {
       transform: translateY(50px);
     }
 
-    .letter-image:not(.is-tree):hover .animated-mail .top-fold {
+    .letter-image:not(.is-tree):not(.is-rocket):hover .animated-mail .top-fold {
       transition:
         transform 0.4s,
         z-index 0.2s;
@@ -528,11 +527,11 @@ import wishes from "../data/wishes.json";
       z-index: 0;
     }
 
-    .letter-image:not(.is-tree):hover .animated-mail .letter {
+    .letter-image:not(.is-tree):not(.is-rocket):hover .animated-mail .letter {
       height: 180px;
     }
 
-    .letter-image:not(.is-tree):hover .shadow {
+    .letter-image:not(.is-tree):not(.is-rocket):hover .shadow {
       width: 240px; /* Increased to 240px */
     }
   }
@@ -552,7 +551,6 @@ import wishes from "../data/wishes.json";
   }
 
   .letter-image.is-open .animated-mail .letter {
-    /* height: 220px; */
     height: 180px; /* Start at peek height */
     animation: pop-out 1s forwards ease-in-out;
     animation-delay: 0.4s; /* Wait for top fold to open */
@@ -610,13 +608,19 @@ import wishes from "../data/wishes.json";
     overflow: visible !important; /* Allow ornaments to pop */
   }
 
-  /* Hide the letter text lines when it becomes a tree */
+  /* Hide the letter text lines when it becomes a tree or rocket */
   .letter-image.is-tree .letter-border,
   .letter-image.is-tree .letter-title,
   .letter-image.is-tree .letter-context,
   .letter-image.is-tree .letter-body,
   .letter-image.is-tree .letter-stamp,
-  .letter-image.is-tree .letter-footer {
+  .letter-image.is-tree .letter-footer,
+  .letter-image.is-rocket .letter-border,
+  .letter-image.is-rocket .letter-title,
+  .letter-image.is-rocket .letter-context,
+  .letter-image.is-rocket .letter-body,
+  .letter-image.is-rocket .letter-stamp,
+  .letter-image.is-rocket .letter-footer {
     opacity: 0 !important;
     transition: opacity 0.2s;
   }
@@ -626,11 +630,12 @@ import wishes from "../data/wishes.json";
     opacity: 1;
   }
 
-  /* Fade out envelope folds */
+  /* Fade out envelope folds and disable interaction */
   .letter-image.is-tree .animated-mail .top-fold,
   .letter-image.is-tree .animated-mail .left-fold,
   .letter-image.is-tree .animated-mail .body {
     opacity: 0;
+    pointer-events: none; /* Critical: allow clicks to pass through to stump */
   }
 
   /* Transform back-fold into stump */
@@ -639,7 +644,8 @@ import wishes from "../data/wishes.json";
     height: 60px;
     background-color: #4a3b2a; /* Stump Brown */
     transform: translateX(80px); /* Center it (200/2 - 40/2 = 80) */
-    z-index: 2; /* Bring to front of other folds if needed */
+    z-index: 20; /* Ensure it's above other layers */
+    cursor: pointer; /* Indicate clickable */
     transition:
       width 1.5s ease-in-out,
       height 1.5s ease-in-out,
@@ -647,10 +653,120 @@ import wishes from "../data/wishes.json";
       background-color 1.5s ease-in-out;
     /* transition-delay removed for simultaneous animation */
   }
+
+  /* =========================================
+     3. THE ROCKET (Transforming the Tree) 
+     ========================================= */
+
+  /* 1. HIDE ORNAMENTS AND ENVELOPE PARTS */
+  .letter-image.is-rocket .ornaments,
+  .letter-image.is-rocket .animated-mail .top-fold,
+  .letter-image.is-rocket .animated-mail .left-fold,
+  .letter-image.is-rocket .animated-mail .body {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+
+  /* 2. TRANSFORM BODY (Tree Foliage -> Rocket Body) */
+  .letter-image.is-rocket .animated-mail .letter {
+    /* Override Tree Properties */
+    transform: translateY(0) !important; /* Align to bottom */
+    left: 60px !important; /* Centered in 200px container */
+    width: 80px !important;
+    height: 140px !important;
+    background: #cd999d; /* Dusty Pink */
+    z-index: 5 !important;
+    overflow: visible !important; /* Allow nose cone to show */
+
+    /* Shape Change: Triangle -> Rectangle */
+    clip-path: none !important;
+    animation: none !important;
+    transition: all 1s ease-in-out;
+  }
+
+  /* 3. CREATE NOSE CONE (Using Tree's Pseudo-element) */
+  .letter-image.is-rocket .animated-mail .letter::before {
+    content: "";
+    position: absolute;
+    top: -50px; /* Sit on top of body */
+    left: 0;
+    width: 0;
+    height: 0;
+
+    /* Triangle Shape */
+    border-style: solid;
+    border-width: 0 40px 50px 40px;
+    border-color: transparent transparent #c8b6ca transparent; /* Lavender */
+
+    opacity: 0;
+    animation: fadeInPart 1s forwards 0.3s; /* Fade in slightly after body morphs */
+  }
+
+  /* 4. TRANSFORM STUMP (Stump -> Fin Container) */
+  .letter-image.is-rocket .animated-mail .back-fold {
+    /* Move to bottom left */
+    transform: none !important; /* Reset transform */
+    left: 20px !important; /* Position explicitly */
+    bottom: 0 !important;
+    width: 160px !important; /* Span both fins (40 + 80 + 40) */
+    height: 50px !important;
+    background-color: transparent !important; /* Hide brown */
+    border: none !important; /* No borders */
+    clip-path: none !important; /* Ensure children aren't clipped */
+
+    z-index: 6;
+    transition: all 1s ease-in-out;
+  }
+
+  /* 5. CREATE LEFT FIN (Using Stump's Before Pseudo-element) */
+  .letter-image.is-rocket .animated-mail .back-fold::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    width: 40px;
+    height: 50px;
+    background-color: #659094; /* Teal */
+
+    /* Create Triangle Fin using clip-path */
+    /* Vertical edge on Right (touching body) */
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+
+    opacity: 0;
+    animation: fadeInPart 1s forwards 0.3s;
+  }
+
+  /* 6. CREATE RIGHT FIN (Using Stump's After Pseudo-element) */
+  .letter-image.is-rocket .animated-mail .back-fold::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0; /* Align to right edge of container */
+
+    width: 40px;
+    height: 50px;
+    background-color: #659094; /* Teal */
+
+    /* Create Triangle Fin using clip-path */
+    /* Vertical edge on Left (touching body) */
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+
+    opacity: 0;
+    animation: fadeInPart 1s forwards 0.3s;
+  }
+
+  @keyframes fadeInPart {
+    to {
+      opacity: 1;
+    }
+  }
 </style>
 
 <script>
   const envelope = document.querySelector(".letter-image");
+  const stump = document.querySelector(".back-fold"); // Select the stump element
   const modal = document.getElementById("ornament-modal");
   const modalContent = modal?.querySelector(".modal-content") as HTMLElement;
   const modalImage = document.getElementById("modal-image") as HTMLImageElement;
@@ -722,14 +838,29 @@ import wishes from "../data/wishes.json";
     }
   });
 
+  // 1. Logic for clicking the Stump (Tree -> Rocket)
+  if (stump && envelope) {
+    stump.addEventListener("click", (e) => {
+      e.stopPropagation(); // Stop bubbling to envelope
+
+      // Only turn into rocket if we are currently a tree
+      if (envelope.classList.contains("is-tree")) {
+        envelope.classList.remove("is-tree");
+        envelope.classList.add("is-rocket");
+      }
+    });
+  }
+
+  // 2. Logic for clicking Envelope (Envelope -> Tree)
   if (envelope) {
     envelope.addEventListener("click", (e) => {
       const el = e.currentTarget as Element;
 
-      // If already open or is a tree, do nothing (disable interaction)
+      // If already open, is a tree, OR is a rocket, do nothing
       if (
         el.classList.contains("is-open") ||
-        el.classList.contains("is-tree")
+        el.classList.contains("is-tree") ||
+        el.classList.contains("is-rocket")
       ) {
         return;
       }
