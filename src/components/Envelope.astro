@@ -358,7 +358,7 @@
     position: absolute;
     top: 200px;
     left: 50%;
-    width: 400px;
+    width: 200px; /* Was 400px */
     height: 30px;
     border-radius: 100%;
     background: radial-gradient(
@@ -389,7 +389,7 @@
   }
 
   .letter-image:not(.is-tree):hover .shadow {
-    width: 250px;
+    width: 240px; /* Increased to 240px */
   }
 
   /* click = fully open + pop out and stay open */
@@ -433,13 +433,18 @@
   }
 
   .letter-image.is-open .shadow {
-    width: 260px;
+    width: 240px; /* Increased to 240px */
   }
 
   /* 2. THE TREE (Transforming the Letter) */
   /* Lower the tree by default (jump down state) */
   .letter-image.is-tree .animated-mail {
     transform: translateY(50px);
+  }
+
+  /* Tree Shadow */
+  .letter-image.is-tree .shadow {
+    width: 160px; /* Match tree/paper width */
   }
 
   .letter-image.is-tree .animated-mail .letter {
