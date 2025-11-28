@@ -1,17 +1,108 @@
 [
     {
-        "name": "Peace"
+        "id": 1,
+        "name": "Star",
+        "image": "/images/handdrawn_gr_86.png",
+        "link": "https://www.toyota.com/gr86/",
+        "color": "#DDB967",
+        "position": {
+            "top": "20%",
+            "left": "50%"
+        },
+        "isStar": true,
+        "details": [
+            {
+                "label": "Price",
+                "value": "$30k"
+            },
+            {
+                "label": "Color",
+                "value": "Trueno Blue"
+            }
+        ]
     },
     {
-        "name": "Joy"
+        "id": 2,
+        "name": "Burgundy Bauble",
+        "image": "/images/handdrawn_sweatshirt.png",
+        "link": "https://www.revolve.com/fear-of-god-essentials-classic-crewneck-sweatshirt-in-vintage-black/dp/FALF-MK72/?d=Mens&page=1&lc=11&itrownum=3&itcurrpage=1&itview=05",
+        "color": "#70161E",
+        "position": {
+            "top": "50%",
+            "left": "30%"
+        },
+        "details": [
+            {
+                "label": "Price",
+                "value": "$84.00"
+            },
+            {
+                "label": "Size",
+                "value": "Medium"
+            }
+        ]
     },
     {
-        "name": "Love"
+        "id": 3,
+        "name": "Thistle Ornament",
+        "image": "/images/handdrawn_water_bottle.png",
+        "link": "https://www.hydroflask.com/40-oz-wide-mouth?color=Indigo",
+        "color": "#D7BCC8",
+        "position": {
+            "top": "60%",
+            "left": "60%"
+        },
+        "details": [
+            {
+                "label": "Price",
+                "value": "$40.00"
+            },
+            {
+                "label": "Size",
+                "value": "40 oz"
+            }
+        ]
     },
     {
-        "name": "Health"
+        "id": 4,
+        "name": "Blue State Bauble",
+        "image": "/images/handdrawn_gymshark_hoodie.png",
+        "link": "https://www.gymshark.com/products/gymshark-crest-hoodie-light-grey-marl-aw22",
+        "color": "#495D63",
+        "position": {
+            "top": "80%",
+            "left": "40%"
+        },
+        "details": [
+            {
+                "label": "Price",
+                "value": "$30.00"
+            },
+            {
+                "label": "Size",
+                "value": "Medium"
+            }
+        ]
     },
     {
-        "name": "Happiness"
+        "id": 5,
+        "name": "Gold Sphere",
+        "image": "/images/handdrawn_lego.png",
+        "link": "https://www.lego.com/en-us/product/japanese-red-maple-bonsai-tree-10348",
+        "color": "#DDB967",
+        "position": {
+            "top": "75%",
+            "left": "75%"
+        },
+        "details": [
+            {
+                "label": "Price",
+                "value": "$60.00"
+            },
+            {
+                "label": "Title",
+                "value": "Lego Bonsai Tree"
+            }
+        ]
     }
 ]
