@@ -371,25 +371,27 @@
   }
 
   /* hover = little peek, same behavior you had */
+  /* Only apply hover on devices that support it to avoid sticky hover on mobile */
+  @media (hover: hover) {
+    .letter-image:not(.is-tree):hover .animated-mail {
+      transform: translateY(50px);
+    }
 
-  .letter-image:not(.is-tree):hover .animated-mail {
-    transform: translateY(50px);
-  }
+    .letter-image:not(.is-tree):hover .animated-mail .top-fold {
+      transition:
+        transform 0.4s,
+        z-index 0.2s;
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
 
-  .letter-image:not(.is-tree):hover .animated-mail .top-fold {
-    transition:
-      transform 0.4s,
-      z-index 0.2s;
-    transform: rotateX(180deg);
-    z-index: 0;
-  }
+    .letter-image:not(.is-tree):hover .animated-mail .letter {
+      height: 180px;
+    }
 
-  .letter-image:not(.is-tree):hover .animated-mail .letter {
-    height: 180px;
-  }
-
-  .letter-image:not(.is-tree):hover .shadow {
-    width: 240px; /* Increased to 240px */
+    .letter-image:not(.is-tree):hover .shadow {
+      width: 240px; /* Increased to 240px */
+    }
   }
 
   /* click = fully open + pop out and stay open */
