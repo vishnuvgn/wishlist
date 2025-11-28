@@ -1,5 +1,5 @@
 ---
-
+import wishes from "../data/wishes.json";
 ---
 
 <div class="letter-image">
@@ -19,11 +19,19 @@
       </div>
       <div class="letter-footer"></div>
       <div class="ornaments">
-        <div class="ornament"></div>
-        <div class="ornament"></div>
-        <div class="ornament"></div>
-        <div class="ornament"></div>
-        <div class="ornament"></div>
+        {
+          wishes.map((wish) => (
+            <div
+              class={`ornament ${wish.isStar ? "star" : ""}`}
+              style={`top: ${wish.position.top}; left: ${wish.position.left}; background: ${wish.color};`}
+              data-name={wish.name}
+              data-image={wish.image}
+              data-details={JSON.stringify(wish.details)}
+              data-link={wish.link}
+              data-color={wish.color}
+            />
+          ))
+        }
       </div>
     </div>
     <div class="top-fold"></div>
@@ -31,6 +39,24 @@
     <div class="left-fold"></div>
   </div>
   <div class="shadow"></div>
+</div>
+
+<!-- Modal -->
+<div id="ornament-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal">&times;</button>
+    <div class="modal-grid">
+      <div class="modal-image-container">
+        <img id="modal-image" src="" alt="Ornament" />
+      </div>
+      <div class="modal-details">
+        <div id="dynamic-details-container"></div>
+        <a id="modal-link" href="#" target="_blank" class="detail-box link-box">
+          View Link
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -308,15 +334,19 @@
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background: #ddb967; /* Gold */
+    /* background set inline */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    pointer-events: auto; /* Make clickable */
+    transition: transform 0.2s;
   }
 
-  .ornament:nth-child(1) {
-    top: 20%;
-    left: 50%;
+  .ornament:hover {
+    transform: scale(1.2);
+  }
+
+  .ornament.star {
     transform: translateX(-50%);
-    background: #ddb967; /* Star-ish position */
     width: 25px;
     height: 25px;
     clip-path: polygon(
@@ -333,25 +363,138 @@
     );
     border-radius: 0;
   }
-  .ornament:nth-child(2) {
-    top: 50%;
-    left: 30%;
-    background: #70161e; /* Burgundy */
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
   }
-  .ornament:nth-child(3) {
-    top: 60%;
-    left: 60%;
-    background: #d7bcc8; /* Thistle */
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
   }
-  .ornament:nth-child(4) {
-    top: 80%;
-    left: 40%;
-    background: #495d63; /* Blue State */
+
+  .modal-content {
+    background: white; /* Will be overridden by inline style */
+    padding: 30px;
+    border-radius: 4px; /* Sharp corners like reference? Or slight radius */
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+    max-height: 90vh; /* Prevent overflow on small screens */
+    overflow-y: auto; /* Allow scrolling if content is too tall */
   }
-  .ornament:nth-child(5) {
-    top: 75%;
-    left: 75%;
-    background: #ddb967; /* Gold */
+
+  .modal-overlay.active .modal-content {
+    transform: scale(1);
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+  }
+
+  .close-modal:hover {
+    color: black;
+  }
+
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .modal-image-container {
+    background: rgba(255, 255, 255, 0.3); /* Light overlay for image box */
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .modal-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Fit whole image without cropping */
+    padding: 10px; /* Add breathing room */
+  }
+
+  .modal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  #dynamic-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  :global(.detail-box) {
+    background: rgba(255, 255, 255, 0.4);
+    padding: 10px 15px;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  :global(.detail-label) {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 2px;
+  }
+
+  :global(.detail-value) {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .link-box {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .link-box:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  @media (max-width: 480px) {
+    .modal-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .shadow {
@@ -508,6 +651,77 @@
 
 <script>
   const envelope = document.querySelector(".letter-image");
+  const modal = document.getElementById("ornament-modal");
+  const modalContent = modal?.querySelector(".modal-content") as HTMLElement;
+  const modalImage = document.getElementById("modal-image") as HTMLImageElement;
+  const dynamicDetailsContainer = document.getElementById(
+    "dynamic-details-container",
+  );
+  const modalLink = document.getElementById("modal-link") as HTMLAnchorElement;
+  const closeBtn = modal?.querySelector(".close-modal");
+
+  // Handle Ornament Clicks
+  const ornaments = document.querySelectorAll(".ornament");
+  ornaments.forEach((ornament) => {
+    ornament.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent envelope interaction
+      const target = e.currentTarget as HTMLElement;
+
+      const data = target.dataset;
+
+      // Populate Modal
+      if (modalContent)
+        modalContent.style.backgroundColor = data.color || "#fff";
+      if (modalImage) modalImage.src = data.image || "";
+      if (modalLink) modalLink.href = data.link || "#";
+
+      // Handle Dynamic Details
+      if (dynamicDetailsContainer && data.details) {
+        dynamicDetailsContainer.innerHTML = ""; // Clear previous details
+        try {
+          const details = JSON.parse(data.details);
+          details.forEach((detail: { label: string; value: string }) => {
+            const box = document.createElement("div");
+            box.className = "detail-box";
+
+            const label = document.createElement("span");
+            label.className = "detail-label";
+            label.textContent = detail.label;
+
+            const value = document.createElement("span");
+            value.className = "detail-value";
+            value.textContent = detail.value;
+
+            box.appendChild(label);
+            box.appendChild(value);
+            dynamicDetailsContainer.appendChild(box);
+          });
+        } catch (err) {
+          console.error("Error parsing details:", err);
+        }
+      }
+
+      // Show Modal
+      modal?.classList.add("active");
+    });
+  });
+
+  // Close Modal
+  const closeModal = () => {
+    modal?.classList.remove("active");
+  };
+
+  closeBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeModal();
+  });
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
   if (envelope) {
     envelope.addEventListener("click", (e) => {
       const el = e.currentTarget as Element;
