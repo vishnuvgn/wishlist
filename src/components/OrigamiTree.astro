@@ -37,6 +37,7 @@ import wishes from "../data/wishes.json";
     <div class="top-fold"></div>
     <div class="body"></div>
     <div class="left-fold"></div>
+    <div class="rocket-fire"></div>
   </div>
   <div class="shadow"></div>
 </div>
@@ -676,6 +677,24 @@ import wishes from "../data/wishes.json";
     width: 80px !important;
     height: 140px !important;
     background: #cd999d; /* Dusty Pink */
+    /* Double Helix Pattern */
+    background-image: 
+      /* Layer 1: White Spiral (Counter-Clockwise) */
+      repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.3) 0px,
+        rgba(255, 255, 255, 0.3) 10px,
+        transparent 10px,
+        transparent 40px
+      ),
+      /* Layer 2: Red Spiral (Clockwise) */
+        repeating-linear-gradient(
+          45deg,
+          rgba(112, 22, 30, 0.4) 0px,
+          /* Burgundy #70161E */ rgba(112, 22, 30, 0.4) 10px,
+          transparent 10px,
+          transparent 40px
+        );
     z-index: 5 !important;
     overflow: visible !important; /* Allow nose cone to show */
 
@@ -760,6 +779,52 @@ import wishes from "../data/wishes.json";
   @keyframes fadeInPart {
     to {
       opacity: 1;
+    }
+  }
+
+  /* 7. ROCKET FIRE */
+  .rocket-fire {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 40px;
+    background: linear-gradient(to bottom, #ffeb3b, #ff9800, #f44336);
+    border-radius: 50% 50% 20% 20%;
+    opacity: 0;
+    z-index: 4;
+    filter: blur(2px);
+  }
+
+  .letter-image.is-rocket .rocket-fire {
+    opacity: 1;
+    transition: opacity 0.5s 1s; /* Fade in after morph (1s delay) */
+    animation: flicker 0.1s infinite alternate;
+  }
+
+  @keyframes flicker {
+    0% {
+      transform: translateX(-50%) scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateX(-50%) scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  /* 8. LAUNCH ANIMATION */
+  .letter-image.is-rocket {
+    animation: launch 3s forwards ease-in 1.5s; /* Wait 1.5s then launch */
+  }
+
+  @keyframes launch {
+    0% {
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      transform: translate(-50%, -150vh); /* Fly off screen */
     }
   }
 </style>
