@@ -232,6 +232,31 @@
     transition: opacity 1s 2s; /* Delayed fade in */
   }
 
+  @keyframes foldToTree {
+    0% {
+      /* Start as Rectangle (Paper) - 4 points */
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+      background: white;
+    }
+    40% {
+      /* "Right Triangle" - Fold top right down to bottom left */
+      /* Use 4 points: (0,0), (0,100%), (100%,100%), (100%,100%) [duplicated] */
+      clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 100%);
+      background: #e6e6e6; /* Slightly darker while folding */
+    }
+    60% {
+      /* Start turning green, keep shape */
+      clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 100%);
+      background: #629677;
+    }
+    100% {
+      /* "Mirror" - Expand to full Triangle (Tree) */
+      /* Use 4 points: (50%,0), (0,100%), (100%,100%), (100%,100%) [duplicated] */
+      clip-path: polygon(50% 0, 0 100%, 100% 100%, 100% 100%);
+      background: #629677;
+    }
+  }
+
   .ornament {
     position: absolute;
     width: 15px;
@@ -301,11 +326,11 @@
 
   /* hover = little peek, same behavior you had */
 
-  .letter-image:hover .animated-mail {
+  .letter-image:not(.is-tree):hover .animated-mail {
     transform: translateY(50px);
   }
 
-  .letter-image:hover .animated-mail .top-fold {
+  .letter-image:not(.is-tree):hover .animated-mail .top-fold {
     transition:
       transform 0.4s,
       z-index 0.2s;
@@ -313,11 +338,11 @@
     z-index: 0;
   }
 
-  .letter-image:hover .animated-mail .letter {
+  .letter-image:not(.is-tree):hover .animated-mail .letter {
     height: 180px;
   }
 
-  .letter-image:hover .shadow {
+  .letter-image:not(.is-tree):hover .shadow {
     width: 250px;
   }
 
@@ -365,43 +390,66 @@
     width: 260px;
   }
 
-  /* --- TREE MORPH STATES --- */
-
-  /* Triggered after pop-out */
-  .letter-image.morph-tree .animated-mail .letter {
-    background-color: #629677; /* Green Tree */
-    clip-path: polygon(50% 0, 0% 100%, 100% 100%); /* Triangle */
+  /* 2. THE TREE (Transforming the Letter) */
+  /* Lower the tree by default (jump down state) */
+  .letter-image.is-tree .animated-mail {
+    transform: translateY(50px);
   }
 
-  /* Hide letter content */
-  .letter-image.morph-tree .animated-mail .letter-border,
-  .letter-image.morph-tree .animated-mail .letter-title,
-  .letter-image.morph-tree .animated-mail .letter-context,
-  .letter-image.morph-tree .animated-mail .letter-body,
-  .letter-image.morph-tree .animated-mail .letter-stamp,
-  .letter-image.morph-tree .animated-mail .letter-footer {
-    opacity: 0;
+  .letter-image.is-tree .animated-mail .letter {
+    /* Step 1: Move up to clear the stump */
+    transform: translateY(-60px) !important;
+    height: 250px !important; /* Grow taller */
+    width: 200px !important; /* Grow wider */
+    left: 0 !important; /* Center in container */
+
+    /* Step 2: Change Color to Tree Green */
+    background: #629677; /* */
+
+    /* Step 3: The Fold Animation Sequence */
+    /* We use a keyframe to do the Right Triangle -> Isosceles Triangle logic */
+    animation: foldToTree 1.5s forwards ease-in-out !important;
+
+    z-index: 10 !important;
+    overflow: visible !important; /* Allow ornaments to pop */
+  }
+
+  /* Hide the letter text lines when it becomes a tree */
+  .letter-image.is-tree .letter-border,
+  .letter-image.is-tree .letter-title,
+  .letter-image.is-tree .letter-context,
+  .letter-image.is-tree .letter-body,
+  .letter-image.is-tree .letter-stamp,
+  .letter-image.is-tree .letter-footer {
+    opacity: 0 !important;
+    transition: opacity 0.2s;
   }
 
   /* Show ornaments */
-  .letter-image.morph-tree .ornaments {
+  .letter-image.is-tree .ornaments {
     opacity: 1;
   }
 
   /* Fade out envelope folds */
-  .letter-image.morph-tree .animated-mail .top-fold,
-  .letter-image.morph-tree .animated-mail .left-fold,
-  .letter-image.morph-tree .animated-mail .body {
+  .letter-image.is-tree .animated-mail .top-fold,
+  .letter-image.is-tree .animated-mail .left-fold,
+  .letter-image.is-tree .animated-mail .body {
     opacity: 0;
   }
 
   /* Transform back-fold into stump */
-  .letter-image.morph-tree .animated-mail .back-fold {
+  .letter-image.is-tree .animated-mail .back-fold {
     width: 40px;
     height: 60px;
     background-color: #4a3b2a; /* Stump Brown */
     transform: translateX(80px); /* Center it (200/2 - 40/2 = 80) */
     z-index: 2; /* Bring to front of other folds if needed */
+    transition:
+      width 1s ease-in-out,
+      height 1s ease-in-out,
+      transform 1s ease-in-out,
+      background-color 1s ease-in-out;
+    transition-delay: 1.5s; /* Wait for letter to fold (1.5s) */
   }
 </style>
 
@@ -410,15 +458,20 @@
   if (envelope) {
     envelope.addEventListener("click", (e) => {
       const el = e.currentTarget as Element;
-      el.classList.toggle("is-open");
+      // Stage 1: Open the envelope
+      if (!el.classList.contains("is-tree")) {
+        // Only toggle if not already a tree
+        el.classList.toggle("is-open");
+      }
 
       // If opening, trigger tree morph after delay
       if (el.classList.contains("is-open")) {
         setTimeout(() => {
-          el.classList.add("morph-tree");
+          el.classList.add("is-tree");
+          el.classList.remove("is-open"); // Remove open state to stop pop-out animation
         }, 2000); // 1.4s animation + buffer
       } else {
-        el.classList.remove("morph-tree");
+        el.classList.remove("is-tree");
       }
     });
   }
