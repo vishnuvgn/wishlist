@@ -5,5 +5,5 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
     site: 'https://vishnuvgn.github.io',
     // Only use the subpath when building for production
-    base: process.env.NODE_ENV === 'production' ? '/wishlist' : '/',
+    base: process.env.NODE_ENV === 'production' ? '/wishlist/' : '/',
 });
