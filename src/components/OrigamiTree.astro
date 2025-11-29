@@ -366,6 +366,7 @@ import wishes from "../data/wishes.json";
     cursor: pointer;
     color: rgba(0, 0, 0, 0.5);
     z-index: 10;
+    padding: 10px; /* Increase touch target */
   }
 
   .close-modal:hover {
@@ -446,6 +447,17 @@ import wishes from "../data/wishes.json";
   @media (max-width: 480px) {
     .modal-grid {
       grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+      padding: 20px;
+      width: 95%;
+    }
+  }
+
+  @media (max-width: 350px) {
+    .letter-image {
+      transform: translate(-50%, -50%) scale(0.8);
     }
   }
 
@@ -747,10 +759,27 @@ import wishes from "../data/wishes.json";
 
 <script>
   // =========================================
-  // 1. SELECTORS & VARIABLES
+  // 1. CONFIGURATION & CONSTANTS
+  // =========================================
+  const CONFIG = {
+    colors: ["#ffffff", "#70161e"],
+    shardCount: 60,
+    explosionDelay: 3000, // Time before reassembly
+    reassemblyDuration: 800,
+    physics: {
+      gravity: 0.4,
+      bounceDamping: 0.3,
+      maxBounces: 2,
+    },
+  };
+
+  // =========================================
+  // 2. STATE & SELECTORS
   // =========================================
   const envelope = document.querySelector(".letter-image") as HTMLElement;
   const stump = document.querySelector(".back-fold");
+  let shards: HTMLElement[] = [];
+  let groundLevel = window.innerHeight / 2 + 100;
 
   // Modal Elements
   const modal = document.getElementById("ornament-modal");
@@ -763,41 +792,13 @@ import wishes from "../data/wishes.json";
   );
 
   // =========================================
-  // 2. HELPER FUNCTIONS
+  // 3. ANIMATION HELPERS
   // =========================================
-
-  /**
-   * Explodes the rocket into shards
-   */
-  const explodeRocket = () => {
-    if (!envelope) return;
-
-    const animatedMail = envelope.querySelector(".animated-mail");
-    if (!animatedMail) return;
-
-    const rect = animatedMail.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    envelope.style.visibility = "hidden";
-
-    const colors = ["#ffffff", "#70161e"];
-    const groundLevel = window.innerHeight / 2 + 100;
-
-    for (let i = 0; i < 60; i++) {
-      createShard(centerX, centerY, colors, groundLevel);
-    }
-  };
 
   /**
    * Creates a single shard with physics
    */
-  const createShard = (
-    x: number,
-    y: number,
-    colors: string[],
-    groundLevel: number,
-  ) => {
+  const createShard = (x: number, y: number) => {
     const shard = document.createElement("div");
     shard.style.position = "fixed";
     shard.style.left = `${x}px`;
@@ -805,7 +806,7 @@ import wishes from "../data/wishes.json";
     shard.style.width = `${Math.random() * 12 + 4}px`;
     shard.style.height = `${Math.random() * 12 + 4}px`;
     shard.style.backgroundColor =
-      colors[Math.floor(Math.random() * colors.length)];
+      CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
     shard.style.zIndex = "9999";
     shard.style.pointerEvents = "none";
 
@@ -822,7 +823,6 @@ import wishes from "../data/wishes.json";
     const speed = Math.random() * 8 + 2;
     let vx = Math.cos(angle) * speed;
     let vy = Math.sin(angle) * speed - 8;
-    const gravity = 0.4;
     let bounceCount = 0;
 
     const animateShard = () => {
@@ -830,7 +830,7 @@ import wishes from "../data/wishes.json";
       let currentX = r.left;
       let currentY = r.top;
 
-      vy += gravity;
+      vy += CONFIG.physics.gravity;
       currentX += vx;
       currentY += vy;
 
@@ -842,8 +842,8 @@ import wishes from "../data/wishes.json";
         requestAnimationFrame(animateShard);
       } else {
         shard.style.top = `${groundLevel}px`;
-        if (vy > 2 && bounceCount < 2) {
-          vy = -vy * 0.3;
+        if (vy > 2 && bounceCount < CONFIG.physics.maxBounces) {
+          vy = -vy * CONFIG.physics.bounceDamping;
           currentY = groundLevel - 1;
           bounceCount++;
           requestAnimationFrame(animateShard);
@@ -851,6 +851,81 @@ import wishes from "../data/wishes.json";
       }
     };
     requestAnimationFrame(animateShard);
+    return shard;
+  };
+
+  /**
+   * Reassembles the envelope from shards
+   */
+  const reassembleEnvelope = () => {
+    if (!envelope) return;
+
+    const rect = envelope.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // 1. Prepare Envelope
+    envelope.classList.remove("is-rocket");
+    envelope.classList.remove("is-tree");
+    envelope.classList.remove("is-open");
+
+    // Start small and invisible
+    envelope.style.visibility = "visible";
+    envelope.style.transition = "none";
+    envelope.style.transform = "translate(-50%, -50%) scale(0)";
+
+    // Force reflow
+    void envelope.offsetWidth;
+
+    // 2. Animate Shards to Center
+    shards.forEach((shard) => {
+      shard.style.transition = `all ${CONFIG.reassemblyDuration}ms ease-in-out`;
+      shard.style.left = `${centerX}px`;
+      shard.style.top = `${centerY}px`;
+      shard.style.opacity = "1"; // Keep visible
+      shard.style.transform = `scale(0.1) rotate(${Math.random() * 360}deg)`;
+    });
+
+    // 3. Animate Envelope Growing
+    requestAnimationFrame(() => {
+      envelope.style.transition = `transform ${CONFIG.reassemblyDuration}ms ease-in-out`;
+      envelope.style.transform = "translate(-50%, -50%) scale(1)";
+    });
+
+    // 4. Cleanup
+    setTimeout(() => {
+      shards.forEach((shard) => shard.remove());
+      shards = [];
+
+      // Reset envelope styles to let CSS classes take over
+      envelope.style.transition = "";
+      envelope.style.transform = "";
+    }, CONFIG.reassemblyDuration);
+  };
+
+  /**
+   * Explodes the rocket into shards
+   */
+  const explodeRocket = () => {
+    if (!envelope) return;
+
+    const animatedMail = envelope.querySelector(".animated-mail");
+    if (!animatedMail) return;
+
+    const rect = animatedMail.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    envelope.style.visibility = "hidden";
+
+    shards = [];
+
+    for (let i = 0; i < CONFIG.shardCount; i++) {
+      const shard = createShard(centerX, centerY);
+      shards.push(shard);
+    }
+
+    setTimeout(reassembleEnvelope, CONFIG.explosionDelay);
   };
 
   /**
@@ -876,6 +951,10 @@ import wishes from "../data/wishes.json";
     };
     requestAnimationFrame(check);
   };
+
+  // =========================================
+  // 4. UI HANDLERS
+  // =========================================
 
   /**
    * Populates and shows the modal
@@ -917,8 +996,13 @@ import wishes from "../data/wishes.json";
   };
 
   // =========================================
-  // 3. EVENT LISTENERS
+  // 5. EVENT LISTENERS
   // =========================================
+
+  // Window Resize (Update ground level)
+  window.addEventListener("resize", () => {
+    groundLevel = window.innerHeight / 2 + 100;
+  });
 
   // Ornament Clicks
   const ornaments = document.querySelectorAll(".ornament");
