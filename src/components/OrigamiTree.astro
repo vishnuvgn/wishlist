@@ -817,22 +817,23 @@ import wishes from "../data/wishes.json";
   }
 
   /* 8. LAUNCH ANIMATION */
-  .letter-image.is-rocket {
-    animation: launch 3s forwards ease-in 1.5s; /* Wait 1.5s then launch */
+  /* 8. LAUNCH ANIMATION */
+  .letter-image.is-rocket .animated-mail {
+    animation: launchRocket 3s forwards ease-in 1.5s; /* Wait 1.5s then launch */
   }
 
-  @keyframes launch {
+  @keyframes launchRocket {
     0% {
-      transform: translate(-50%, -50%);
+      transform: translateY(0);
     }
     100% {
-      transform: translate(-50%, -150vh); /* Fly off screen */
+      transform: translateY(-150vh); /* Fly off screen */
     }
   }
 </style>
 
 <script>
-  const envelope = document.querySelector(".letter-image");
+  const envelope = document.querySelector(".letter-image") as HTMLElement;
   const stump = document.querySelector(".back-fold"); // Select the stump element
   const modal = document.getElementById("ornament-modal");
   const modalContent = modal?.querySelector(".modal-content") as HTMLElement;
@@ -842,6 +843,108 @@ import wishes from "../data/wishes.json";
   );
   const modalLink = document.getElementById("modal-link") as HTMLAnchorElement;
   const closeBtn = modal?.querySelector(".close-modal");
+
+  // --- Rocket Explosion Logic ---
+  const explodeRocket = () => {
+    if (!envelope) return;
+
+    const rect = envelope.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Hide rocket immediately
+    envelope.style.visibility = "hidden";
+
+    const colors = ["#ffffff", "#70161e"]; // White and Burgundy
+    const groundLevel = window.innerHeight / 2 + 100; // Shadow level (bottom of centered 200px container)
+
+    for (let i = 0; i < 60; i++) {
+      const shard = document.createElement("div");
+      shard.style.position = "fixed";
+      shard.style.left = `${centerX}px`;
+      shard.style.top = `${centerY}px`;
+      shard.style.width = `${Math.random() * 12 + 4}px`;
+      shard.style.height = `${Math.random() * 12 + 4}px`;
+      shard.style.backgroundColor =
+        colors[Math.floor(Math.random() * colors.length)];
+      shard.style.zIndex = "9999";
+      shard.style.pointerEvents = "none";
+
+      // Random shape
+      if (Math.random() > 0.5) {
+        // Triangle
+        shard.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+      } else {
+        // Square/Rect
+        shard.style.borderRadius = "1px";
+      }
+
+      document.body.appendChild(shard);
+
+      // Physics
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 8 + 2;
+      let vx = Math.cos(angle) * speed;
+      let vy = Math.sin(angle) * speed - 8; // Initial upward burst
+      const gravity = 0.4;
+      let bounceCount = 0;
+
+      const animateShard = () => {
+        const r = shard.getBoundingClientRect();
+        let x = r.left;
+        let y = r.top;
+
+        vy += gravity;
+        x += vx;
+        y += vy;
+
+        shard.style.left = `${x}px`;
+        shard.style.top = `${y}px`;
+        shard.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+        if (y < groundLevel) {
+          requestAnimationFrame(animateShard);
+        } else {
+          shard.style.top = `${groundLevel}px`;
+
+          // Bounce logic
+          if (vy > 2 && bounceCount < 2) {
+            vy = -vy * 0.3; // Dampened bounce
+            y = groundLevel - 1;
+            bounceCount++;
+            requestAnimationFrame(animateShard);
+          }
+        }
+      };
+      requestAnimationFrame(animateShard);
+    }
+  };
+
+  const monitorRocketPosition = () => {
+    if (!envelope) return;
+    const animatedMail = envelope.querySelector(".animated-mail");
+    if (!animatedMail) return;
+
+    const check = () => {
+      const rect = animatedMail.getBoundingClientRect();
+      // Rocket body is at bottom of 200px container. Body height ~140px.
+      // Half body off page means top of viewport intersects middle of body.
+      // Middle of body is roughly 200 - 70 = 130px from top of container.
+      // So when rect.top + 130 < 0
+      if (rect.top < -130) {
+        explodeRocket();
+      } else {
+        // Keep checking if still visible and is rocket
+        if (
+          envelope.classList.contains("is-rocket") &&
+          envelope.style.visibility !== "hidden"
+        ) {
+          requestAnimationFrame(check);
+        }
+      }
+    };
+    requestAnimationFrame(check);
+  };
 
   // Handle Ornament Clicks
   const ornaments = document.querySelectorAll(".ornament");
@@ -914,6 +1017,7 @@ import wishes from "../data/wishes.json";
       if (envelope.classList.contains("is-tree")) {
         envelope.classList.remove("is-tree");
         envelope.classList.add("is-rocket");
+        monitorRocketPosition();
       }
     });
   }
