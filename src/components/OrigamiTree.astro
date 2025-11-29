@@ -25,7 +25,9 @@ import wishes from "../data/wishes.json";
               class={`ornament ${wish.isStar ? "star" : ""}`}
               style={`top: ${wish.position.top}; left: ${wish.position.left}; background: ${wish.color};`}
               data-name={wish.name}
-              data-image={wish.image}
+              data-image={
+                import.meta.env.BASE_URL + wish.image.replace(/^\//, "")
+              }
               data-details={JSON.stringify(wish.details)}
               data-link={wish.link}
               data-color={wish.color}
